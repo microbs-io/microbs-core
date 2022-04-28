@@ -66,16 +66,3 @@ jobs:
       # Test
       - name: Run tests
         run: npm run test
-
-      # Upload the release asset to the Github repo
-      # Uses: https://github.com/actions/upload-release-asset
-      - name: Upload release asset
-        id: upload_release_asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./target/releases/${{ needs.create_release.outputs.release_tag }}.zip
-          asset_name: ${{ needs.create_release.outputs.release_tag }}.zip
-          asset_content_type: application/zip
