@@ -1,0 +1,81 @@
+# Build, test, and deploy whenever pushing a release tag
+name: Deploy
+on:
+  push:
+    tags:
+      - "v*.*.*"
+      - "v*.*.*-*"
+
+jobs:
+  create_release:
+    name: Create Release
+
+    # Use the latest LTS OS
+    runs-on: ubuntu-20.04
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_tag: ${{ steps.get_tag.outputs.tag }}
+    steps:
+
+      # Checkout the repository.
+      # Uses: https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Get the release tag.
+      - name: Get release tag
+        id: get_tag
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+
+      # Create the release.
+      # Uses: https://github.com/actions/create-release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') || contains(github.ref, 'experimental') }}
+          body: "Releasing ${{ steps.get_tag.outputs.tag }}"
+
+  build_and_upload_artifacts:
+    name: Build and Upload Artifacts
+    needs: create_release
+
+    # Use the latest LTS OS.
+    runs-on: ubuntu-20.04
+      
+    steps:
+      
+      # Install node
+      - name: Setup node
+        uses: actions/setup-node@v2
+
+      # Checkout the repository
+      # Uses: https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Install
+      - name: Install node_modules
+        run: npm ci
+
+      # Test
+      - name: Run tests
+        run: npm run test
+
+      # Upload the release asset to the Github repo
+      # Uses: https://github.com/actions/upload-release-asset
+      - name: Upload release asset
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./target/releases/${{ needs.create_release.outputs.release_tag }}.zip
+          asset_name: ${{ needs.create_release.outputs.release_tag }}.zip
+          asset_content_type: application/zip

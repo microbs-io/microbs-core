@@ -1,0 +1,35 @@
+{
+  "name": "@microbs.io/core",
+  "version": "0.1.0-alpha",
+  "description": "microservices observability",
+  "license": "Apache-2.0",
+  "url": "https://microbs.io",
+  "main": "./src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microbs-io/microbs-core.git"
+  },
+  "keywords": [
+    "microbs"
+  ],
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "silent": false,
+    "verbose": true
+  },
+  "engines": {
+    "node": ">=14.16.1"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "chalk": "^4.1.1",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "minimist": "^1.2.5"
+  },
+  "devDependencies": {
+    "jest": "^26.6.3"
+  }
+}
