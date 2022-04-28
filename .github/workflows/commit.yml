@@ -34,8 +34,8 @@ jobs:
         uses: actions/checkout@v2
 
       # Install
-      - name: Install node_modules
-        run: npm install
+      - name: Install dependencies
+        run: npm ci
 
       # Test
       - name: Run tests
