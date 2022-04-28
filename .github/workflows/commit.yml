@@ -1,4 +1,4 @@
-# Build and test whenever pushing a commit or submitting a pull request.
+# Build and test whenever pushing a commit or submitting a pull request
 name: Commit
 on:
   push:

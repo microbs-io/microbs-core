@@ -2,12 +2,13 @@
 name: Publish
 on:
   release:
+    types: [published, created, edited]
 jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
       
-      # Checkout the repository.
+      # Checkout the repository
       # Uses: https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@v2
