@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-20.04
 
     # Attempt to run all tests
@@ -19,6 +20,9 @@ jobs:
       # Install node
       - name: Setup node
         uses: actions/setup-node@v2
+        with:
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@microbs.io'
 
       # Checkout the repository
       # Uses: https://github.com/actions/checkout
@@ -34,7 +38,7 @@ jobs:
         run: npm run test
         
   create_release:
-    name: Create Release
+    name: Create release
     needs: build
 
     # Use the latest LTS OS
@@ -67,3 +71,16 @@ jobs:
           draft: false
           prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') || contains(github.ref, 'experimental') }}
           body: "Releasing ${{ steps.get_tag.outputs.tag }}"
+          
+  publish_to_npmjs:
+    name: Publish to npmjs
+    needs: create_release
+    
+    runs-on: ubuntu-20.04
+    steps:
+          
+      # Publish
+      - name: Publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
