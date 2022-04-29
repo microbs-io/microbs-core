@@ -31,15 +31,15 @@ const stringify = (value) => value === undefined ? 'undefined' : value.toString(
  * only for the first line in the case of multi-line log messages.
  */
 const verboseMessage = (message, level, lineNum) => {
-  const ts = lineNum ? ''.padEnd(24, ' ') : new Date().toISOString()
+  const ts = lineNum > 0 ? ''.padEnd(24, ' ') : new Date().toISOString()
   var levelFormatted = level
   var messageFormatted = message
   if (level == 'warn')
-    levelFormatted = chalk.yellowBright((lineNum ? '' : level).padEnd(5, ' ') + ' |')
+    levelFormatted = chalk.yellowBright((lineNum > 0 ? '' : level).padEnd(5, ' ') + ' |')
   else if (level == 'error')
-    levelFormatted = chalk.redBright((lineNum ? '' : level).padEnd(5, ' ') + ' |')
+    levelFormatted = chalk.redBright((lineNum > 0 ? '' : level).padEnd(5, ' ') + ' |')
   else
-    levelFormatted = chalk.dim((lineNum ? '' : level).padEnd(5, ' ') + ' |')
+    levelFormatted = chalk.dim((lineNum > 0 ? '' : level).padEnd(5, ' ') + ' |')
   if (level == 'debug')
     messageFormatted = chalk.dim(message)
   return `${chalk.dim(ts)} ${levelFormatted} ${messageFormatted}`
