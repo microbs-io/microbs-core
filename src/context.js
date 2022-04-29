@@ -9,6 +9,9 @@
 // Standard packages
 const path = require('path')
 
+// Third-party packages
+const _ = require('lodash')
+
 // Default context
 const DEFAULT_CONTEXT = {
   homepath: process.cwd(),
@@ -22,14 +25,13 @@ const context = {}
 
 /**
  * Parse command-line arguments and persist them in an immutable context object.
- * TODO: Freezing is not working as expected.
  */
 const init = (obj) => {
 
   // Return the existing context if it exists.
   if (Object.isFrozen(context))
     return context
-  
+    
   // Initialize the context object.
   for (var key in DEFAULT_CONTEXT)
     context[key] = DEFAULT_CONTEXT[key]
@@ -44,6 +46,7 @@ const init = (obj) => {
 
 // Export context
 module.exports = {
+  default: () => _.cloneDeep(DEFAULT_CONTEXT),
   get: (key) => key ? init()[key] : init(),
-  init: () => init
+  init: init
 }
