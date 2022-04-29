@@ -15,7 +15,7 @@ const axios = require('axios')
 const quote = require('shell-quote').quote
 
 // Main packages
-const config = require('./logger')
+const config = require('./config')
 const logger = require('./logger')
 const state = require('./state')
 
