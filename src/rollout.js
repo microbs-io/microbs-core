@@ -1,3 +1,6 @@
+// Standard packages
+const path = require('path')
+
 // Third-party packages
 const quote = require('shell-quote').quote
 
@@ -45,16 +48,28 @@ module.exports = async (opts) => {
 
   logger.info('')
   logger.info(`Rolling out the '${opts.profile}' profile with skaffold...`)
-  logger.info('')
-  var command = `VARIANT=${quote([ opts.profile ])} skaffold ${quote([ opts.action ])} -p "${quote([ opts.profile ])}" -f "${quote([ opts.skaffoldFilepath ])}"`
-  if (opts.action == 'run')
-    command = `${command} -l "skaffold.dev/run-id=microbs-${quote([ config.get('deployment.name') ])}" --status-check=false`
-  if (config.get('docker.registry'))
-    command = `${command} --default-repo="${quote([ config.get('docker.registry') ])}"`
-  const result = utils.exec(command)
-  if (result.err) {
-    logger.error('Rollout failed.')
-    process.exit(1)
+  
+  // skaffold treats paths under "deploy.kubectl.manifests" as relative to $PWD,
+  // hence this temporary chdir into the directory of the skaffold filepath
+  // to ensure those paths are relative to the directory of skaffold.yaml.
+  const cwd = process.cwd()
+  const pwd = path.dirname(opts.skaffoldFilepath)
+  try {
+    process.chdir(pwd)
+    var command = `VARIANT=${quote([ opts.profile ])} skaffold ${quote([ opts.action ])} -p "${quote([ opts.profile ])}" -f "${quote([ opts.skaffoldFilepath ])}"`
+    if (opts.action == 'run')
+      command = `${command} -l "skaffold.dev/run-id=microbs-${quote([ config.get('deployment.name') ])}" --status-check=false`
+    if (config.get('docker.registry'))
+      command = `${command} --default-repo="${quote([ config.get('docker.registry') ])}"`
+    logger.debug(command)
+    const result = utils.exec(command)
+    if (result.err) {
+      logger.error('Rollout failed.')
+      process.chdir(cwd)
+      process.exit(1)
+    }
+  } finally {
+    process.chdir(cwd)
   }
 
   logger.info('')
