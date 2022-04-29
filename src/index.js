@@ -1,5 +1,6 @@
 module.exports.config = require('./config')
 module.exports.context = require('./context')
 module.exports.logger = require('./logger')
+module.exports.rollout = require('./rollout')
 module.exports.state = require('./state')
 module.exports.utils = require('./utils')
