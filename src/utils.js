@@ -147,6 +147,8 @@ module.exports.configHas = (fields) => {
  */
 module.exports.http = async (opts) => {
   logger.debug(`${opts.method.toUpperCase()} ${opts.url}`)
+  if (opts.data)
+    logger.debug(opts.data)
   const response = await axios.request({
     method: opts.method,
     url: opts.url,
@@ -155,7 +157,7 @@ module.exports.http = async (opts) => {
     timeout: opts.timeout || 60000,
     validateStatus: () => true
   })
-  logger.debug(response.status)
+  logger.debug(`${response.status} ${response.statusText}`)
   logger.debug(response.data)
   return response
 }
