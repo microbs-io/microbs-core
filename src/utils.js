@@ -68,6 +68,9 @@ module.exports.sleep = (ms) => {
  * sanitize any inputs to the command variable prior to running this function.
  */
 module.exports.exec = (command, hideStdout) => {
+  logger.debug('')
+  logger.debug(command)
+  logger.debug('')
   try {
     const stdout = execSync(command, hideStdout ? { stdio: 'pipe' } : { stdio: 'inherit' })
     return {

@@ -16,7 +16,6 @@ const utils = require('./utils')
 const deploySecrets = (opts) => {
   const envFilepath = `${process.cwd()}/.env`
   const cmd = `kubectl create secret generic microbs-secrets --from-env-file='${quote([ envFilepath ])}' --namespace=${quote([ opts.namespace ])}`
-  logger.debug(cmd)
   const result = utils.exec(cmd, true)
   if (result.err) {
     logger.error('...failed to deploy microbs-secrets:')
@@ -44,7 +43,6 @@ const stageSecrets = () => {
  */
 const deleteSecrets = (opts) => {
   const cmd = `kubectl delete secret microbs-secrets --namespace=${quote([ opts.namespace ])}`
-  logger.debug(cmd)
   const result = utils.exec(cmd, true)
   if (result.err) {
     if (result.stderr.includes('NotFound')) {
@@ -114,7 +112,6 @@ const run = async (opts) => {
       command = `${command} -l "skaffold.dev/run-id=microbs-${quote([ config.get('deployment.name') ])}" --status-check=false`
     if (config.get('docker.registry'))
       command = `${command} --default-repo="${quote([ config.get('docker.registry') ])}"`
-    logger.debug(command)
     const result = utils.exec(command)
     if (result.err) {
       logger.error('Rollout failed.')
