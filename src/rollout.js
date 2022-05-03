@@ -11,9 +11,77 @@ const state = require('./state')
 const utils = require('./utils')
 
 /**
+ * Deploy microbs-secrets to Kubernetes.
+ */
+const deploySecrets = (opts) => {
+  const envFilepath = `${process.cwd()}/.env`
+  const cmd = `kubectl create secret generic microbs-secrets --from-env-file='${quote([ envFilepath ])}' --namespace=${quote([ opts.namespace ])}`
+  logger.debug(cmd)
+  const result = utils.exec(cmd, true)
+  if (result.err) {
+    logger.error('...failed to deploy microbs-secrets:')
+    logger.error(result.stderr)
+    process.exit(1)
+  }
+}
+
+/**
+ * Stage microbs-secrets.
+ */
+const stageSecrets = () => {
+  
+  // Save .state
+  state.save()
+
+  // Turn .state into .env for microbs-secrets
+  logger.debug(`...staging new microbs-secrets at ${process.cwd()}/.env`)
+  const envFilepath = `${process.cwd()}/.env`
+  utils.createEnvFile(state.get(), envFilepath)
+}
+
+/**
+ * Delete microbs-secrets from Kubernetes.
+ */
+const deleteSecrets = (opts) => {
+  const cmd = `kubectl delete secret microbs-secrets --namespace=${quote([ opts.namespace ])}`
+  logger.debug(cmd)
+  const result = utils.exec(cmd, true)
+  if (result.err) {
+    if (result.stderr.includes('NotFound')) {
+      logger.debug('...microbs-secrets does not exist on Kubernetes.')
+    } else {
+      logger.error('...failed to delete microbs-secrets:')
+      logger.error(result.err)
+      process.exit(1)
+    }
+  }
+}
+
+/**
+ * Recreate microbs-secrets on Kubernetes by deleting the old microbs-secrets,
+ * reconstructing it from the .state file, and deploying the new microbs-secrets.
+ */
+const recreateSecrets = (opts) => {
+  logger.info('')
+  logger.info('Recreating microbs-secrets on Kubernetes...')
+  
+  // Delete old microbs-secrets from Kubernetes
+  logger.debug('...deleting old microbs-secrets from Kubernetes...')
+  deleteSecrets(opts)
+  
+  // Recreate .env file from .state to stage new microbs-secrets
+  stageSecrets()
+  
+  // Deploy new microbs-secrets to Kubernetes
+  logger.debug('...deploying new microbs-secrets to Kubernetes...')
+  deploySecrets(opts)  
+  logger.info('...done.')
+}
+
+/**
  * Recreate microbs-secrets and then apply a skaffold profile.
  */
-module.exports = async (opts) => {
+const run = async (opts) => {
   var opts = opts || {}
   if (!opts.action)
     opts.action = 'run'
@@ -27,24 +95,9 @@ module.exports = async (opts) => {
     throw new Error('opts.action must be either "run" or "delete"')
   if (!opts.skaffoldFilepath)
     throw new Error('opts.skaffoldFilepath must be given')
-
-  // Recreate microbs-secrets
-  logger.info('')
-  logger.info('Recreating microbs-secrets on Kubernetes...')
-  logger.debug('...removing old microbs-secrets from Kubernetes...')
-  utils.exec(`kubectl delete secret microbs-secrets --namespace=${quote([ opts.namespace ])}`, true)
-
-  // Save .state
-  state.save()
-
-  // Turn .state into .env for microbs-secrets
-  logger.debug(`...staging new microbs-secrets at ${process.cwd()}/.env`)
-  const envFilepath = `${process.cwd()}/.env`
-  utils.createEnvFile(state.get(), envFilepath)
-
-  logger.debug('...deploying new microbs-secrets to Kubernetes...')
-  utils.exec(`kubectl create secret generic microbs-secrets --from-env-file='${quote([ envFilepath ])}' --namespace=${quote([ opts.namespace ])}`, true)
-  logger.info('...done.')
+    
+  // Recreate microbs-secrets on Kubernetes
+  recreateSecrets(opts)
 
   logger.info('')
   logger.info(`Rolling out the '${opts.profile}' profile with skaffold...`)
@@ -77,4 +130,12 @@ module.exports = async (opts) => {
     logger.info('Rollout complete. It might take a moment for changes to take effect.')
   else
     logger.info('Rollout complete.')
+}
+
+module.exports = {
+  deleteSecrets: deleteSecrets,
+  deploySecrets: deploySecrets,
+  recreateSecrets: recreateSecrets,
+  stageSecrets: stageSecrets,
+  run: run
 }

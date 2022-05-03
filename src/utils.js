@@ -117,7 +117,7 @@ module.exports.objToEnv = (obj) => {
   const objFlat = module.exports.flatten(obj)
   const env = []
   for (var key in objFlat)
-    env.push(`${key.toUpperCase().split('.').join('_')}=${objFlat[key]}`)
+    env.push(`${key.toUpperCase().replace(/[\.\-]+/g, '_')}=${objFlat[key]}`)
   return env.join('\n')
 }
 
