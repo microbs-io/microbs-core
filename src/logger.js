@@ -8,12 +8,12 @@
 const chalk = require('chalk')
 
 // Main packages
-const context = require('./context')
+const { get } = require('./context')
 
 // Get the log level specified in the command-line context
-const logLevel = () => context.get('args.log-level') || 'info'
-const verbose = () => context.get('args.verbose') || false
-const indented = () => context.get('args.indented') || false
+const logLevel = () => get('args.log-level') || 'info'
+const verbose = () => get('args.verbose') || false
+const indented = () => get('args.indented') || false
 
 const SHOW_DEBUG = [ 'debug' ]
 const SHOW_INFO = [ 'debug', 'info' ]

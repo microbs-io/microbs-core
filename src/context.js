@@ -12,9 +12,6 @@
 // Third-party packages
 const _ = require('lodash')
 
-// Main packages
-const { logger } = require('./logger')
-
 // Global context object
 const context = {}
 
@@ -30,7 +27,6 @@ const get = (path) => path ? _.cloneDeep(_.get(context, path)) : _.cloneDeep(con
 const set = (key, value) => {
   var success
   if (key in context) {
-    logger.warn(`"${key}" has already been set in the context object and cannot be set again.`)
     success = false
   } else {
     context[key] = value
