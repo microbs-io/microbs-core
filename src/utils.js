@@ -73,8 +73,8 @@ module.exports.sanitize = (value) => quote([ value ]).replace(/\\@/, '@')
 /**
  * Execute a shell command.
  *
- * For security purposes, be sure to use require('shell-quote').quote() to
- * sanitize any inputs to the command variable prior to running this function.
+ * For security purposes, be sure to use utils.sanitize() to sanitize any inputs
+ * to the command variable prior to running this function.
  */
 module.exports.exec = (command, hideStdout) => {
   logger.debug('')

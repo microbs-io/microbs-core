@@ -4,49 +4,43 @@
  * Stores information about the command execution context. This includes the
  * command, arguments, and paths to the config file and the microbs project home
  * directory and the config file.
+ * 
+ * Context data is stored in a global object called context, the values of which
+ * are immutable once created.
  */
-
-// Standard packages
-const path = require('path')
 
 // Third-party packages
 const _ = require('lodash')
 
-// Default context
-const DEFAULT_CONTEXT = {
-  homepath: process.cwd(),
-  filepath: path.join(process.cwd(), 'config.yaml'),
-  command: 'help',
-  args: { _: [], 'log-level': 'info' }
-}
+// Main packages
+const { logger } = require('./logger')
 
 // Global context object
 const context = {}
 
 /**
- * Parse command-line arguments and persist them in an immutable context object.
- */
-const init = (obj) => {
+* Get a value from the context object at a given path (i.e. dotted key),
+* or get the entire context object if no path is given.
+*/
+const get = (path) => path ? _.cloneDeep(_.get(context, path)) : _.cloneDeep(context)
 
-  // Return the existing context if it exists.
-  if (Object.isFrozen(context))
-    return context
-    
-  // Initialize the context object.
-  for (var key in DEFAULT_CONTEXT)
-    context[key] = DEFAULT_CONTEXT[key]
-    
-  // Apply the given object to the context object.
-  for (const key in obj)
-    context[key] = obj[key]
-    
-  // Make the context object immutable and then return it.
-  return Object.freeze(context)
+/**
+ * Set a value by a key, but only if the key doesn't already exist.
+ */
+const set = (key, value) => {
+  var success
+  if (key in context) {
+    logger.warn(`"${key}" has already been set in the context object and cannot be set again.`)
+    success = false
+  } else {
+    context[key] = value
+    success = true
+  }
+  return success
 }
 
 // Export context
 module.exports = {
-  default: () => _.cloneDeep(DEFAULT_CONTEXT),
-  get: (key) => key ? init()[key] : init(),
-  init: init
+  get: get,
+  set: set
 }
