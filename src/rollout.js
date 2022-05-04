@@ -1,9 +1,6 @@
 // Standard packages
 const path = require('path')
 
-// Third-party packages
-const quote = require('shell-quote').quote
-
 // Main packages
 const config = require('./config')
 const logger = require('./logger')
@@ -15,7 +12,7 @@ const utils = require('./utils')
  */
 const deploySecrets = (opts) => {
   const envFilepath = `${process.cwd()}/.env`
-  const cmd = `kubectl create secret generic microbs-secrets --from-env-file='${quote([ envFilepath ])}' --namespace=${quote([ opts.namespace ])}`
+  const cmd = `kubectl create secret generic microbs-secrets --from-env-file='${utils.sanitize(envFilepath)}' --namespace=${utils.sanitize(opts.namespace)}`
   const result = utils.exec(cmd, true)
   if (result.err) {
     logger.error('...failed to deploy microbs-secrets:')
@@ -42,7 +39,7 @@ const stageSecrets = () => {
  * Delete microbs-secrets from Kubernetes.
  */
 const deleteSecrets = (opts) => {
-  const cmd = `kubectl delete secret microbs-secrets --namespace=${quote([ opts.namespace ])}`
+  const cmd = `kubectl delete secret microbs-secrets --namespace=${utils.sanitize(opts.namespace)}`
   const result = utils.exec(cmd, true)
   if (result.err) {
     if (result.stderr.includes('NotFound')) {
@@ -107,11 +104,11 @@ const run = async (opts) => {
   const pwd = path.dirname(opts.skaffoldFilepath)
   try {
     process.chdir(pwd)
-    var command = `VARIANT=${quote([ opts.profile ])} skaffold ${quote([ opts.action ])} -p "${quote([ opts.profile ])}" -f "${quote([ opts.skaffoldFilepath ])}"`
+    var command = `VARIANT=${utils.sanitize(opts.profile)} skaffold ${utils.sanitize(opts.action)} -p "${utils.sanitize(opts.profile)}" -f "${utils.sanitize(opts.skaffoldFilepath)}"`
     if (opts.action == 'run')
-      command = `${command} -l "skaffold.dev/run-id=microbs-${quote([ config.get('deployment.name') ])}" --status-check=false`
+      command = `${command} -l "skaffold.dev/run-id=microbs-${utils.sanitize(config.get('deployment.name'))}" --status-check=false`
     if (config.get('docker.registry'))
-      command = `${command} --default-repo="${quote([ config.get('docker.registry') ])}"`
+      command = `${command} --default-repo="${utils.sanitize(config.get('docker.registry'))}"`
     const result = utils.exec(command)
     if (result.err) {
       logger.error('Rollout failed.')

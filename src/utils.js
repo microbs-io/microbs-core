@@ -11,6 +11,7 @@ const fs = require('fs')
 // Third-party packages
 const _ = require('lodash')
 const axios = require('axios')
+const quote = require('shell-quote').quote
 
 // Main packages
 const logger = require('./logger')
@@ -60,6 +61,14 @@ module.exports.loadJson = (filepath) => {
 module.exports.sleep = (ms) => {
   return new Promise(r => setTimeout(r, ms))
 }
+
+/**
+ * Sanitize an input that will be used in utils.exec() to prevent issues with
+ * the security or functionality of those commands. Allow at signs (@) to be
+ * unescaped since they are commonly used in commands that reference apps or
+ * plugins (e.g. ./node_modules/@microbs.io/plugin-minikube)
+ */
+module.exports.sanitize = (value) => quote([ value ]).replace(/\\@/, '@')
 
 /**
  * Execute a shell command.

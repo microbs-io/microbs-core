@@ -11,6 +11,19 @@ describe('utils', () => {
     const s = utils.exec('echo "hello"', true)
     expect(s.stdout.trim()).toBe('hello')
   })
+  
+  test('utils.sanitize()', () => {
+    const utils = require('../src/utils')
+    const str1 = utils.sanitize('./directory/@microbs.io/file.json')
+    const expected1 = './directory/@microbs.io/file.json'
+    expect(str1).toBe(expected1)
+    const str2 = utils.sanitize('foo bar')
+    const expected2 = "'foo bar'"
+    expect(str2).toBe(expected2)
+    const str3 = utils.sanitize('foo;bar')
+    const expected3 = 'foo\\;bar'
+    expect(str3).toBe(expected3)
+  })
 
   test('utils.expandvars()', () => {
     const utils = require('../src/utils')
