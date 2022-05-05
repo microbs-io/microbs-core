@@ -19,17 +19,25 @@ const context = {}
 * Get a value from the context object at a given path (i.e. dotted key),
 * or get the entire context object if no path is given.
 */
-const get = (path) => path ? _.cloneDeep(_.get(context, path)) : _.cloneDeep(context)
+const get = (path) => {
+  if (path)
+    return _.cloneDeep(_.get(context, path))
+  return _.cloneDeep(context)
+}
 
 /**
- * Set a value by a key, but only if the key doesn't already exist.
+ * Set a value in the context object at a path (i.e. dotted key), but only if
+ * the key doesn't already exist. Disallow setting an undefined value, which
+ * would delete the key.
  */
-const set = (key, value) => {
+const set = (path, value) => {
   var success
-  if (key in context) {
+  if (value === undefined) {
+    throw new Error('context.set() does not allow undefined values.')
+  } else if (_.get(context, path)) {
     success = false
   } else {
-    context[key] = value
+    _.set(context, path, value)
     success = true
   }
   return success
