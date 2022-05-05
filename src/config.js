@@ -25,7 +25,7 @@ const config = {}
  * Read config file.
  */
 const read = (filepath) => {
-  filepath = filepath || context.get('filepath')
+  filepath = filepath || context.get('path.config') || path.join(process.cwd(), 'config.yaml')
   try {
     return fs.readFileSync(filepath, 'utf8')
   } catch (err) {
