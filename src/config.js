@@ -31,7 +31,6 @@ const read = (filepath) => {
   } catch (err) {
     if (err.code === 'ENOENT') {
       logger.error(`No configuration file at specified path: ${filepath}`)
-      process.exit(1)
     } else {
       throw err
     }
