@@ -8,12 +8,13 @@ const logger = require('./logger')
 const state = require('./state')
 const utils = require('./utils')
 
+const envFilepath = () => context.get('path.env') || `${process.cwd()}/.env`
+
 /**
  * Deploy microbs-secrets to Kubernetes.
  */
 const deploySecrets = (opts) => {
-  const envFilepath = `${process.cwd()}/.env`
-  const cmd = `kubectl create secret generic microbs-secrets --from-env-file='${utils.sanitize(envFilepath)}' --namespace=${utils.sanitize(opts.namespace)}`
+  const cmd = `kubectl create secret generic microbs-secrets --from-env-file='${utils.sanitize(envFilepath())}' --namespace=${utils.sanitize(opts.namespace)}`
   const result = utils.exec(cmd, true)
   if (result.err) {
     logger.error('...failed to deploy microbs-secrets:')
@@ -32,8 +33,7 @@ const stageSecrets = () => {
 
   // Turn state.yaml into .env for microbs-secrets
   logger.debug(`...staging new microbs-secrets at ${process.cwd()}/.env`)
-  const envFilepath = context.get('path.env') || `${process.cwd()}/.env`
-  utils.createEnvFile(state.get(), envFilepath)
+  utils.createEnvFile(state.get(), envFilepath())
 }
 
 /**
