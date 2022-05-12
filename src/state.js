@@ -22,11 +22,13 @@ const utils = require('./utils')
 // Global state object
 const state = {}
 
+const pathState = (filepath) => filepath || context.get('path.state') || path.join(process.cwd(), 'state.yaml') || path.join(os.homedir(), '.microbs', 'state.yaml')
+
 /**
  * Read state.yaml
  */
 const read = (filepath) => {
-  filepath = filepath || context.get('path.state') || path.join(os.homedir(), '.microbs', 'state.yaml') || path.join(process.cwd(), 'state.yaml')
+  filepath = pathState(filepath)
   return fs.readFileSync(filepath, 'utf8')  
   try {
     return fs.readFileSync(filepath, 'utf8')
@@ -72,7 +74,7 @@ const init = (filepath) => {
 const save = (filepath) => {
   if (_.isEmpty(state))
     init()
-  filepath = filepath || path.join(process.cwd(), 'state.yaml')
+  filepath = pathState(filepath)
 
   // Save state.yaml file
   fs.writeFileSync(

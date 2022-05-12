@@ -21,11 +21,13 @@ const utils = require('./utils')
 // Global config object
 const config = {}
 
+const pathConfig = (filepath) => filepath || context.get('path.config') || path.join(process.cwd(), 'config.yaml') || path.join(os.homedir(), '.microbs', 'config.yaml')
+
 /**
  * Read config file.
  */
 const read = (filepath) => {
-  filepath = filepath || context.get('path.config') || path.join(os.homedir(), '.microbs', 'config.yaml') || path.join(process.cwd(), 'config.yaml')
+  filepath = pathConfig(filepath)
   return fs.readFileSync(filepath, 'utf8')
 }
 
