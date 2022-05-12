@@ -15,6 +15,7 @@ const yaml = require('js-yaml')
 
 // Main packages
 const config = require('./config')
+const context = require('./context')
 const logger = require('./logger')
 const utils = require('./utils')
 
