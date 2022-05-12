@@ -25,16 +25,8 @@ const config = {}
  * Read config file.
  */
 const read = (filepath) => {
-  filepath = filepath || context.get('path.config') || path.join(process.cwd(), 'config.yaml')
-  try {
-    return fs.readFileSync(filepath, 'utf8')
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      logger.error(`No configuration file at specified path: ${filepath}`)
-    } else {
-      throw err
-    }
-  }
+  filepath = filepath || context.get('path.config') || path.join(os.homedir(), '.microbs', 'config.yaml') || path.join(process.cwd(), 'config.yaml')
+  return fs.readFileSync(filepath, 'utf8')
 }
 
 /**
