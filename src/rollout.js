@@ -3,6 +3,7 @@ const path = require('path')
 
 // Main packages
 const config = require('./config')
+const context = require('./context')
 const logger = require('./logger')
 const state = require('./state')
 const utils = require('./utils')
@@ -31,7 +32,7 @@ const stageSecrets = () => {
 
   // Turn state.yaml into .env for microbs-secrets
   logger.debug(`...staging new microbs-secrets at ${process.cwd()}/.env`)
-  const envFilepath = `${process.cwd()}/.env`
+  const envFilepath = context.get('path.env') || `${process.cwd()}/.env`
   utils.createEnvFile(state.get(), envFilepath)
 }
 
