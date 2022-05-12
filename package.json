@@ -1,6 +1,6 @@
 {
   "name": "@microbs.io/core",
-  "version": "0.1.14-alpha",
+  "version": "0.1.15-alpha",
   "description": "microservices observability",
   "license": "Apache-2.0",
   "url": "https://microbs.io",

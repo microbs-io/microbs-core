@@ -1,7 +1,7 @@
 /*
  * state.js
  *
- * Parses the .state file, stores its values in memory, and provides read-write
+ * Parses state.yaml, stores its values in memory, and provides read-write
  * access to those values.
  */
 
@@ -22,15 +22,16 @@ const utils = require('./utils')
 const state = {}
 
 /**
- * Read .state file.
+ * Read state.yaml
  */
 const read = (filepath) => {
-  filepath = filepath || path.join(process.cwd(), '.state')
+  filepath = filepath || context.get('path.state') || path.join(os.homedir(), '.microbs', 'state.yaml') || path.join(process.cwd(), 'state.yaml')
+  return fs.readFileSync(filepath, 'utf8')  
   try {
     return fs.readFileSync(filepath, 'utf8')
   } catch (err) {
     if (err.code === 'ENOENT') {
-      // .state file doesn't exist. Create an empty one.
+      // state.yaml doesn't exist. Create an empty one.
       fs.closeSync(fs.openSync(filepath, 'w'))
       return fs.readFileSync(filepath, 'utf8')
     } else {
@@ -40,21 +41,21 @@ const read = (filepath) => {
 }
 
 /**
- * Parse the contents of a .state file to a YAML object, and then flatten the
- * structure of the object. Normally the .state file would already be flattened,
+ * Parse the contents of state.yaml to a YAML object, and then flatten the
+ * structure of the object. Normally state.yaml would already be flattened,
  * but it's possible for a user to add nested fields to the file directly.
  */
 const parse = (contents) => utils.flatten(yaml.load(contents || {}))
 
 /**
- * Read and parse the .state file.
- * Merge config into .state, overriding .state with config.
+ * Read and parse state.yaml.
+ * Merge config into state.yaml, overriding state.yaml with config.
  */
 const load = (filepath) => parse(read(filepath))
 
 /**
- * Load the .state file and persist it in a mutable state object.
- * Merge config into .state, overriding .state with config.
+ * Load state.yaml and persist it in a mutable state object.
+ * Merge config into state.yaml, overriding state.yaml with config.
  */
 const init = (filepath) => {
   for (var key in state)
@@ -65,14 +66,14 @@ const init = (filepath) => {
 }
 
 /**
- * Persist the state object to the .state file.
+ * Persist the state object to the state.yaml file.
  */
 const save = (filepath) => {
   if (_.isEmpty(state))
     init()
-  filepath = filepath || path.join(process.cwd(), '.state')
+  filepath = filepath || path.join(process.cwd(), 'state.yaml')
 
-  // Save .state file
+  // Save state.yaml file
   fs.writeFileSync(
     filepath,
     yaml.dump(utils.flatten(state), { sortKeys: true }),

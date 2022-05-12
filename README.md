@@ -39,9 +39,10 @@ const { config, logger } = require('@microbs.io/core')
 
 Load, parse, and persist in memory the microbs config file, which is located by
 `filepath`. By default, `filepath` is `$CWD/config.yaml`, where `$CWD` is the
-current directory of the user running the microbs CLI. Usually plugins don't
-need to run `config.load()` except during tests, because the microbs CLI will
-load the config file before it loads the plugins and store the filepath at
+current directory of the user running the microbs CLI. If the file doesn't exist,
+then the default `filepath` is `$HOME/.microbs/config.yaml`. Usually plugins
+don't need to run `config.load()` except during tests, because the microbs CLI
+will load the config file before it loads the plugins and store the filepath at
 `context.get('path.config')`.
 
 #### <a name="config.get"></a>`config.get(path?: string)`
@@ -74,7 +75,7 @@ The microbs CLI sets the following context variables:
 * `path.cli` - Absolute path to the directory of the microbs CLI
 * `path.user` - Absolute path to the current working directory of the user running the microbs CLI
 * `path.config` - Absolute path to the config file (`config.yaml`) used to store deployment inputs
-* `path.state` - Absolute path to the state file (`.state`) used to store post-deployment details
+* `path.state` - Absolute path to the state file (`state.yaml`) used to store post-deployment details
 * `path.env` - Absolute path to the .env file (`.env`) used by `microbs-secrets`
 * `path.app` - Absolute path to the installation directory of the application named in `deployment.app`
 * `path.plugin.kubernetes` - Absolute path to the installation directory of the plugin in `deployment.plugins.kubernetes`
@@ -146,16 +147,17 @@ What happens when this function is called:
 
 ### <a name="state"></a>`state`
 
-`state` provides a read-write interface to the microbs state file (`.state`)
+`state` provides a read-write interface to the microbs state file (`state.yaml`)
 and stores its values in memory as a read-write object.
 
 #### <a name="state.load"></a> `state.load(filepath?: string)`
 
 Load, parse, and persist in memory the microbs state file, which is located by
-`filepath`. By default, `filepath` is `$CWD/.state`, where `$CWD` is the
-current directory of the user running the microbs CLI. Usually plugins don't
-need to run `state.load()` except during tests, because the microbs CLI will
-load the state file before it loads the plugins and store the filepath at
+`filepath`. By default, `filepath` is `$CWD/state.yaml`, where `$CWD` is the
+current directory of the user running the microbs CLI. If the file doesn't exist,
+then the default `filepath` is `$HOME/.microbs/confstateig.yaml`. Usually plugins
+don't need to run `state.load()` except during tests, because the microbs CLI
+will load the state file before it loads the plugins and store the filepath at
 `context.get('path.state')`.
 
 #### <a name="state.get"></a> `state.get(path?: string)`
@@ -236,7 +238,7 @@ Convert a nested object to a flattened object. This function is not intended to
 be used directly by plugins, but it can be used to test and understand the
 behavior of the function. The microbs CLI uses this function when creating the
 `.env` file for `microbs-secrets`, normalizing the nested contents of the
-`config.yaml` and `.state` files into a flat structure used for `.env`.
+`config.yaml` and `state.yaml` files into a flat structure used for `.env`.
 
 Example usage:
 

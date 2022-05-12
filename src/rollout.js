@@ -26,10 +26,10 @@ const deploySecrets = (opts) => {
  */
 const stageSecrets = () => {
   
-  // Save .state
+  // Save state.yaml
   state.save()
 
-  // Turn .state into .env for microbs-secrets
+  // Turn state.yaml into .env for microbs-secrets
   logger.debug(`...staging new microbs-secrets at ${process.cwd()}/.env`)
   const envFilepath = `${process.cwd()}/.env`
   utils.createEnvFile(state.get(), envFilepath)
@@ -54,7 +54,7 @@ const deleteSecrets = (opts) => {
 
 /**
  * Recreate microbs-secrets on Kubernetes by deleting the old microbs-secrets,
- * reconstructing it from the .state file, and deploying the new microbs-secrets.
+ * reconstructing it from state.yaml, and deploying the new microbs-secrets.
  */
 const recreateSecrets = (opts) => {
   logger.info('')
@@ -64,7 +64,7 @@ const recreateSecrets = (opts) => {
   logger.debug('...deleting old microbs-secrets from Kubernetes...')
   deleteSecrets(opts)
   
-  // Recreate .env file from .state to stage new microbs-secrets
+  // Recreate .env file from state.yaml to stage new microbs-secrets
   stageSecrets()
   
   // Deploy new microbs-secrets to Kubernetes
