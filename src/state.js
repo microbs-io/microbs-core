@@ -29,7 +29,6 @@ const pathState = (filepath) => filepath || context.get('path.state') || path.jo
  */
 const read = (filepath) => {
   filepath = pathState(filepath)
-  return fs.readFileSync(filepath, 'utf8')  
   try {
     return fs.readFileSync(filepath, 'utf8')
   } catch (err) {
