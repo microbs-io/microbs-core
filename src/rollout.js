@@ -105,7 +105,7 @@ const run = async (opts) => {
   const pwd = path.dirname(opts.skaffoldFilepath)
   try {
     process.chdir(pwd)
-    var command = `VARIANT=${utils.sanitize(opts.profile)} skaffold ${utils.sanitize(opts.action)} -p "${utils.sanitize(opts.profile)}" -f "${utils.sanitize(opts.skaffoldFilepath)}"`
+    var command = `VARIANT=${utils.sanitize(opts.profile)} skaffold ${utils.sanitize(opts.action)} -p "${utils.sanitize(opts.profile)}" -f ${utils.sanitize(opts.skaffoldFilepath)}`
     if (opts.action == 'run')
       command = `${command} -l "skaffold.dev/run-id=microbs-${utils.sanitize(config.get('deployment.name'))}" --status-check=false`
     if (config.get('docker.registry'))
