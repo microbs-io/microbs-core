@@ -47,7 +47,7 @@ const read = (filepath) => {
  * structure of the object. Normally state.yaml would already be flattened,
  * but it's possible for a user to add nested fields to the file directly.
  */
-const parse = (contents) => utils.flatten(yaml.load(contents || {}))
+const parse = (contents) => utils.flatten(yaml.load(contents || '{}'))
 
 /**
  * Read and parse state.yaml.

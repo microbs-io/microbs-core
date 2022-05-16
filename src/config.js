@@ -35,7 +35,7 @@ const read = (filepath) => {
  * Parse the contents of a config file to a YAML object, and then flatten the
  * structure of the object.
  */
-const parse = (contents) => utils.flatten(yaml.load(contents || {}))
+const parse = (contents) => utils.flatten(yaml.load(contents || '{}'))
 
 /**
  * Read and parse the config file.
