@@ -22,7 +22,19 @@ const utils = require('./utils')
 // Global state object
 const state = {}
 
-const pathState = (filepath) => filepath || context.get('path.state') || path.join(process.cwd(), 'state.yaml') || path.join(os.homedir(), '.microbs', 'state.yaml')
+/**
+ * Resolve and get the path to the config file.
+ */
+const pathState = (filepath) => {
+  if (filepath && fs.existsSync(filepath))
+    return filepath
+  else if (context.get('path.state') && fs.existsSync(context.get('path.state')))
+    return context.get('path.state')
+  else if (path.join(process.cwd(), 'state.yaml') && fs.existsSync(path.join(process.cwd(), 'state.yaml')))
+    return path.join(process.cwd(), 'state.yaml')
+  else if (path.join(os.homedir(), '.microbs', 'state.yaml') && fs.existsSync(path.join(os.homedir(), '.microbs', 'state.yaml')))
+    return path.join(os.homedir(), '.microbs', 'state.yaml')
+}
 
 /**
  * Read state.yaml
