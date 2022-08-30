@@ -7,6 +7,7 @@
 
 // Standard packages
 const fs = require('fs')
+const os = require('os')
 const path = require('path')
 
 // Third-party packages
@@ -21,7 +22,19 @@ const utils = require('./utils')
 // Global config object
 const config = {}
 
-const pathConfig = (filepath) => filepath || context.get('path.config') || path.join(process.cwd(), 'config.yaml') || path.join(os.homedir(), '.microbs', 'config.yaml')
+/**
+ * Resolve and get the path to the config file.
+ */
+const pathConfig = (filepath) => {
+  if (filepath && fs.existsSync(filepath))
+    return filepath
+  else if (context.get('path.config') && fs.existsSync(context.get('path.config')))
+    return context.get('path.config')
+  else if (path.join(process.cwd(), 'config.yaml') && fs.existsSync(path.join(process.cwd(), 'config.yaml')))
+    return path.join(process.cwd(), 'config.yaml')
+  else if (path.join(os.homedir(), '.microbs', 'config.yaml') && fs.existsSync(path.join(os.homedir(), '.microbs', 'config.yaml')))
+    return path.join(os.homedir(), '.microbs', 'config.yaml')
+}
 
 /**
  * Read config file.
