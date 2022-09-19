@@ -7,6 +7,7 @@
 
 // Standard packages
 const fs = require('fs')
+const os = require('os')
 const path = require('path')
 
 // Third-party packages
