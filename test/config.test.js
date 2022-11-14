@@ -14,9 +14,12 @@ const config = require('../src/config')
 const utils = require('./utils')
 
 describe('config', () => {
-
+  
+  /**
+   * Test if the config object is correctly parsed from a flat config file.
+   */
   test('config.load() [generic-flat.yaml]', () => {
-    const c = config.load('./test/configs/generic-flat.yaml')
+    const c = config.load('./test/config/generic-flat.yaml')
     expect(_.get(c, 'deployment.name')).toBe('test-flat')
     expect(_.get(c, 'deployment.app')).toBe('templates')
     expect(_.get(c, 'deployment.plugins.alerts')).toBe('template')
@@ -27,9 +30,12 @@ describe('config', () => {
     expect(_.get(c, 'otlp.receiver.host')).toBe('otel-collector')
     expect(_.get(c, 'otlp.receiver.port')).toBe(4317)
   })
-
+  
+  /**
+   * Test if the config object is correctly parsed from a nested config file.
+   */
   test('config.load() [generic-nested.yaml]', () => {
-    const c = config.load('./test/configs/generic-nested.yaml')
+    const c = config.load('./test/config/generic-nested.yaml')
     expect(_.get(c, 'deployment.name')).toBe('test-nested')
     expect(_.get(c, 'deployment.app')).toBe('templates')
     expect(_.get(c, 'deployment.plugins.alerts')).toBe('template')
@@ -40,9 +46,13 @@ describe('config', () => {
     expect(_.get(c, 'otlp.receiver.host')).toBe('otel-collector')
     expect(_.get(c, 'otlp.receiver.port')).toBe(4317)
   })
-
+  
+  /**
+   * Test if the config object is correctly persisted as an immutable singleton
+   * object after being loaded from a config file.
+   */
   test('config.init() [generic-nested.yaml]', () => {
-    config.init('./test/configs/generic-nested.yaml')
+    config.init('./test/config/generic-nested.yaml')
     expect(config.get('deployment.name')).toBe('test-nested')
     expect(config.get('deployment.app')).toBe('templates')
     expect(config.get('deployment.plugins.alerts')).toBe('template')
@@ -54,7 +64,12 @@ describe('config', () => {
     expect(config.get('otlp.receiver.port')).toBe(4317)
 
     // Calling init again must not affect the immutable config object.
-    config.init('./test/configs/generic-flat.yaml')
+    config.init('./test/config/generic-flat.yaml')
     expect(config.get('deployment.name')).toBe('test-nested')
+  })
+  
+  // Test creation of non-existing coinfig file
+  test('config.init() [generic-new.yaml]', () => {
+    //
   })
 })

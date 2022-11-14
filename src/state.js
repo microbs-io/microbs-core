@@ -24,35 +24,50 @@ const utils = require('./utils')
 const state = {}
 
 /**
- * Resolve and get the path to the config file.
+ * Resolve and get the path to the state file.
+ * Order of precedence:
+ *  
+ *  1. If the function has the filepath argument, use that.
+ *  2. Else, if the context object has 'path.state', use that.
+ *  3. Else, if the user's current working directory has state.yaml, use that.
+ *  4. Else, if the user's home directory has state.yaml, use that.
+ *  5. Else, if nothing matches, return undefined.
+ *
+ * The most common usages above are:
+ *
+ *  - The user runs the CLI with the default state path, which is option (4),
+ *    which then persists in the context object as 'path.state', which is (2).
+ *  - The user runs the CLI with the current directory as the state path,
+ *    which is option (3), which then persists in the context object as
+ *    'path.state', which is (2).
+ *  - The user runs the CLI with a custom directory as the state path,
+ *    which then persists in the context object as 'path.state', which is (2).
+ *  - Least commonly, (1) is used mainly for testing purposes.
  */
 const pathState = (filepath) => {
-  if (filepath && fs.existsSync(filepath))
+  if (filepath)
     return filepath
-  else if (context.get('path.state') && fs.existsSync(context.get('path.state')))
+  else if (context.get('path.state'))
     return context.get('path.state')
-  else if (path.join(process.cwd(), 'state.yaml') && fs.existsSync(path.join(process.cwd(), 'state.yaml')))
+  else if (fs.existsSync(path.join(process.cwd(), 'state.yaml')))
     return path.join(process.cwd(), 'state.yaml')
-  else if (path.join(os.homedir(), '.microbs', 'state.yaml') && fs.existsSync(path.join(os.homedir(), '.microbs', 'state.yaml')))
+  else if (fs.existsSync(path.join(os.homedir(), '.microbs', 'state.yaml')))
     return path.join(os.homedir(), '.microbs', 'state.yaml')
+}
+
+const ensureExists = (filepath) => {
+  filepathResolved = pathState(filepath)
+  if (!fs.existsSync(filepathResolved))
+    fs.closeSync(fs.openSync(filepathResolved, 'w'))
 }
 
 /**
  * Read state.yaml
  */
 const read = (filepath) => {
-  filepath = pathState(filepath)
-  try {
-    return fs.readFileSync(filepath, 'utf8')
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      // state.yaml doesn't exist. Create an empty one.
-      fs.closeSync(fs.openSync(filepath, 'w'))
-      return fs.readFileSync(filepath, 'utf8')
-    } else {
-      throw err
-    }
-  }
+  filepathResolved = pathState(filepath)
+  ensureExists(filepathResolved)
+  return fs.readFileSync(filepathResolved, 'utf8')
 }
 
 /**
@@ -64,7 +79,6 @@ const parse = (contents) => utils.flatten(yaml.load(contents || '{}'))
 
 /**
  * Read and parse state.yaml.
- * Merge config into state.yaml, overriding state.yaml with config.
  */
 const load = (filepath) => parse(read(filepath))
 
